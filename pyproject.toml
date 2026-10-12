@@ -1,0 +1,107 @@
+[project]
+name = "narezkashorts"
+version = "0.1.0"
+description = "Telegram bot that turns long YouTube videos into viral Shorts using AI"
+authors = [
+    {name = "Your Name", email = "you@example.com"},
+]
+license = {text = "AGPL-3.0"}
+requires-python = ">=3.10"
+keywords = ["telegram", "bot", "aiogram", "yt-dlp", "whisper", "video", "shorts", "tiktok"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Communications :: Chat",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "aiogram>=3.7.0,<4.0.0",
+    "yt-dlp>=2024.8.6",
+    "faster-whisper>=1.0.3",
+    "av>=11,<14",
+    "moviepy>=1.0.3",
+    "python-dotenv>=1.0.1",
+    "httpx>=0.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.5.0",
+    "black>=24.0.0",
+    "mypy>=1.10.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/<your-username>/narezkashorts"
+Repository = "https://github.com/<your-username>/narezkashorts"
+Issues = "https://github.com/<your-username>/narezkashorts/issues"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-v --tb=short --strict-markers"
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["bot.py", "config.py", "services", "utils"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+show_missing = true
+precision = 2
+fail_under = 50
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = ["venv", "build", "dist"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "B",   # bugbear
+    "C4",  # comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "SIM", # simplify
+    "PTH", # use pathlib
+    "ERA", # eradicate commented-out code
+]
+ignore = [
+    "E501",   # line-too-long (black handles it)
+    "B008",   # do not perform function calls in argument defaults
+    "SIM108", # if-else instead of ternary (sometimes less readable)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"bot.py" = ["E402"]   # imports after code is OK in entry points
+"tests/*" = ["B011"]  # assert False in tests is OK
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.10"
+strict_optional = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+exclude = ["venv", "tests"]

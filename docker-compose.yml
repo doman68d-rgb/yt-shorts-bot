@@ -1,0 +1,41 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: narezkashorts:latest
+    container_name: narezkashorts
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      # Override defaults — see .env.example for the full list.
+      WHISPER_MODEL: ${WHISPER_MODEL:-base}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
+      LOG_FILE: /app/logs/bot.log
+
+    volumes:
+      - ./downloads:/app/downloads
+      - ./clips:/app/clips
+      - ./logs:/app/logs
+
+    # Resource limits: Whisper base жрёт ~1.5 ГБ RAM и грузит CPU.
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # No ports to expose — бот работает outbound к Telegram API.
