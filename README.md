@@ -26,11 +26,13 @@ clips (1080×1920). With real-time progress in the chat.
 | ✂️ **Auto-edit** | Single ffmpeg pass: extract + center-crop to 9:16 + scale to 1080×1920 |
 | 📤 **Send** | All clips as messages with captions (timing, strategy, size) |
 | 🧹 **Auto-cleanup** | Temp files deleted after each run |
-| 🐳 **Docker-ready** | One-command deploy |
+| 🐳 **Docker-ready** | One-command deploy on Railway, Fly.io, or any VPS |
 
 ## 📸 Demo
 
-> _Coming soon — record a 60-second GIF of `/start → send link → receive 3 clips`_
+> 🎮 **Try it right now**: send a YouTube link to **[@yt_shorts_demo_bot](https://t.me/yt_shorts_demo_bot)** on Telegram.
+> 
+> _No install needed. Bot is hosted on Railway (24/7)._
 
 ---
 
@@ -73,6 +75,25 @@ docker compose logs -f bot
 ```
 
 That's it.
+
+### Option 3: ☁️ Railway (24/7 deployment for everyone)
+
+Deploy as a public bot anyone can use. Free $5/month credit.
+
+1. Create a new bot via [@BotFather](https://t.me/BotFather) → `/newbot`
+   - Save the token (e.g., `7012345678:AAF-xxxxx`)
+2. Go to [railway.app](https://railway.app/) → **New Project** → **Deploy from GitHub repo**
+3. Select `doman68d-rgb/yt-shorts-bot`
+4. In **Variables**, add:
+   ```
+   BOT_TOKEN=<your-token-from-step-1>
+   ```
+   (Optional) also add `OPENAI_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL` if you want Smart highlights.
+5. Click **Deploy**. Wait ~2 min for build + Whisper model download.
+6. Watch logs: you should see `🚀 Запускаю бота…`
+7. Open your bot in Telegram → `/start` → 🎉
+
+**Cost:** ~$1–3/month under free tier for low traffic. See `scripts/deploy-demo.md` for details.
 
 ---
 

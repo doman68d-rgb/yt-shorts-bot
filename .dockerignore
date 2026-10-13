@@ -1,5 +1,6 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Файлы, которые НЕ копируются в Docker-контекст (экономит время и размер)
+# Файлы, которые НЕ копируются в Docker-контекст
+# (экономит время сборки и размер образа)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Python
@@ -8,23 +9,37 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 
 # Секреты
 .env
+.env.local
+.env.production
+.env.staging
 
 # Видео и временные файлы
 downloads/
 clips/
 logs/
+*.log
 *.mp4
 *.mp3
 *.m4a
 *.webm
 *.mkv
 *.wav
+*.avi
+*.mov
+*.flv
 *.part
 *.ytdl
 *.tmp
+
+# Модели Whisper
+models/
+.cache/
+hf_cache/
 
 # IDE / OS
 .idea/
@@ -33,7 +48,16 @@ logs/
 Thumbs.db
 *.swp
 *.swo
-*.log
+*.swn
 
-# README/docs (нужны, но Docker их не использует — оставлено для примера)
+# Git
+.git/
+.gitignore
+.github/
+
+# Тесты (не нужны в runtime образе, если используется dev-Dockerfile)
+# tests/
+
+# README и docs (для образов — не нужны)
 # README.md
+# LICENSE
