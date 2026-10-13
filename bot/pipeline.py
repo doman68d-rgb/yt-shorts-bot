@@ -18,11 +18,10 @@ bot/pipeline.py
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 from pathlib import Path
-from typing import Optional
 
-from aiogram import Bot
 from aiogram.types import FSInputFile, Message
 
 from bot.formatters import clip_range, escape
@@ -56,7 +55,7 @@ async def run_pipeline(
     bot = message.bot
     prefs = get_prefs(chat_id)
 
-    downloaded_path: Optional[Path] = None
+    downloaded_path: Path | None = None
     clip_paths: list[Path] = []
     transcript = None
 
@@ -117,7 +116,7 @@ async def run_pipeline(
             # ─── ШАГ 3: ВЫБОР МОМЕНТОВ ────────────────────────────────────────
             reporter.set_step(
                 "highlights",
-                f"🧠 LLM-выбор моментов…" if prefs.strategy == "smart" else "🎲 Random: выбираю моменты…",
+                "🧠 LLM-выбор моментов…" if prefs.strategy == "smart" else "🎲 Random: выбираю моменты…",
                 85.0,
             )
             await asyncio.sleep(0.05)  # дать сообщению отрисоваться
@@ -200,14 +199,12 @@ async def run_pipeline(
         except Exception as exc:  # noqa: BLE001
             reporter.fail(str(exc)[:100])
             logger.exception("Неизвестная ошибка пайплайна")
-            try:
+            with contextlib.suppress(Exception):
                 await safe_send(
                     bot, chat_id,
                     f"💥 Что-то пошло совсем не так:\n{exc}\n\n"
                     f"Логи сохранены. Попробуй ещё раз чуть позже.",
                 )
-            except Exception:
-                pass
 
         finally:
             await safe_delete(status_msg)

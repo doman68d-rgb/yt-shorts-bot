@@ -22,10 +22,10 @@ services/progress.py
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import time
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -80,18 +80,18 @@ class ProgressReporter:
         self,
         bot,                                # aiogram Bot
         status_msg,                         # aiogram Message
-        total_seconds: Optional[float] = None,
+        total_seconds: float | None = None,
     ):
         self.bot = bot
         self.status_msg = status_msg
         self.total_seconds = total_seconds or 0.0
 
         self.state = ProgressState()
-        self._task: Optional[asyncio.Task] = None
+        self._task: asyncio.Task | None = None
         self._last_sent_text: str = ""
         self._last_sent_at: float = 0.0
-        self._queue: Optional[asyncio.Queue] = None
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
+        self._queue: asyncio.Queue | None = None
+        self._loop: asyncio.AbstractEventLoop | None = None
 
     # ─── Lifecycle ────────────────────────────────────────────────────────────
     def __enter__(self):
@@ -120,10 +120,8 @@ class ProgressReporter:
     async def __aexit__(self, *exc):
         if self._task and not self._task.done():
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
 
     # ─── Внешний API (синхронный, можно звать из yt-dlp, whisper, ffmpeg) ───
     def set_step(self, step: str, text: str, percent: float) -> None:
@@ -132,10 +130,8 @@ class ProgressReporter:
         self.state.text = text
         self.state.percent = max(0.0, min(100.0, percent))
         if self._queue is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self._loop.call_soon_threadsafe(self._queue.put_nowait, "update")
-            except Exception:
-                pass
 
     def done(self) -> None:
         """Сообщить, что задача завершена. Sync API."""
@@ -143,20 +139,16 @@ class ProgressReporter:
         self.state.percent = 100.0
         self.state.text = "✅ Готово"
         if self._queue is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self._loop.call_soon_threadsafe(self._queue.put_nowait, "stop")
-            except Exception:
-                pass
 
     def fail(self, reason: str) -> None:
         """Сообщить об ошибке. Sync API."""
         self.state.failed = True
         self.state.text = f"❌ {reason}"
         if self._queue is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self._loop.call_soon_threadsafe(self._queue.put_nowait, "stop")
-            except Exception:
-                pass
 
     # ─── Специализированные хелперы ──────────────────────────────────────────
     def yt_dlp_update(self, d: dict) -> None:

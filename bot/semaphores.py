@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import asyncio
 
-
 # Максимум 2 параллельные обработки на бота.
 GLOBAL_SEM: asyncio.Semaphore = asyncio.Semaphore(2)
 

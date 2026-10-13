@@ -2,10 +2,7 @@
 Тесты для services/progress.py — репортер прогресса.
 """
 
-import time
-from unittest.mock import AsyncMock, MagicMock
-
-import pytest
+from unittest.mock import MagicMock
 
 from services.progress import ProgressReporter, ProgressState
 

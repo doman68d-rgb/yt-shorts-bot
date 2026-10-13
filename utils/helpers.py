@@ -14,8 +14,8 @@ import logging
 import os
 import shutil
 import uuid
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, Optional
 
 from config import settings
 
@@ -159,7 +159,7 @@ def is_youtube_url(url: str) -> bool:
 
 
 # Размер файла через Path.
-def file_size(path: Path | str) -> Optional[int]:
+def file_size(path: Path | str) -> int | None:
     p = Path(path)
     try:
         return p.stat().st_size if p.exists() else None
@@ -167,7 +167,7 @@ def file_size(path: Path | str) -> Optional[int]:
         return None
 
 
-def resolve_ffmpeg_location() -> Optional[str]:
+def resolve_ffmpeg_location() -> str | None:
     """
     Найти путь к ffmpeg для yt-dlp (например, bundled из imageio_ffmpeg).
     Возвращает строковый путь или None, если ffmpeg нет.

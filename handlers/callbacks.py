@@ -20,7 +20,8 @@ from aiogram.types import (
 )
 
 from bot.fsm import VideoStates
-from bot.prefs import get_prefs, update as update_prefs
+from bot.prefs import get_prefs
+from bot.prefs import update as update_prefs
 
 logger = logging.getLogger(__name__)
 

@@ -34,12 +34,11 @@ import random
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 from moviepy.video.io.VideoFileClip import VideoFileClip  # type: ignore
 
 from config import settings
-from services.transcriber import TranscriptResult, _find_ffmpeg
+from services.transcriber import _find_ffmpeg
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +144,7 @@ def _clip_video_to_vertical(
     )
 
     try:
-        proc = subprocess.run(
+        subprocess.run(
             cmd,
             capture_output=True,
             text=True,
@@ -162,7 +161,7 @@ def _clip_video_to_vertical(
         ) from exc
     except subprocess.TimeoutExpired as exc:
         raise VideoProcessingError(
-            f"ffmpeg превысил лимит 15 минут при обработке клипа."
+            "ffmpeg превысил лимит 15 минут при обработке клипа."
         ) from exc
 
     if not dst.exists() or dst.stat().st_size < 1000:
@@ -181,8 +180,8 @@ def _random_clip_ranges(
     clip_length: float = 45.0,
     count: int = 3,
     skip_edges_percent: int = 10,
-    rng: Optional[random.Random] = None,
-) -> List[ClipRange]:
+    rng: random.Random | None = None,
+) -> list[ClipRange]:
     """
     Выбрать `count` стартовых точек для клипов длиной `clip_length` секунд,
     исключая первые и последние skip_edges_percent процентов видео.
@@ -219,8 +218,7 @@ def _random_clip_ranges(
     # Но для разнообразия всё равно выбираем случайные.
     if available <= actual_clip_length:
         # Нет запаса — поставим один клип в центре и больше ничего не нарежем.
-        center = (safe_start + safe_end) / 2
-        starts = [center]
+        (safe_start + safe_end) / 2
     else:
         # Случайно выбираем старты, но «уплотняем» — не даём двум клипам
         # пересекаться по времени. Используем «сетку» возможных позиций.
@@ -234,7 +232,7 @@ def _random_clip_ranges(
         max_start = safe_end - actual_clip_length
         possible = list(np_linspace(safe_start, max_start, num=50))  # равномерная сетка
         # если 50 точек не помещается (короткое видео) — берём все точки
-        chosen_starts: List[float] = []
+        chosen_starts: list[float] = []
         last_end = -1e9
         for _ in range(count):
             candidates = [s for s in possible if s >= last_end + min_step]
@@ -255,7 +253,7 @@ def _random_clip_ranges(
     ]
 
 
-def np_linspace(start: float, stop: float, num: int) -> List[float]:
+def np_linspace(start: float, stop: float, num: int) -> list[float]:
     """Мини-linspace, чтобы не тащить numpy для пары чисел."""
     if num <= 1:
         return [start]
@@ -268,10 +266,10 @@ def np_linspace(start: float, stop: float, num: int) -> List[float]:
 # ──────────────────────────────────────────────────────────────────────────────
 def make_clips(
     video_path: Path,
-    ranges: List[ClipRange],
+    ranges: list[ClipRange],
     job_id: str,
     progress_hook=None,
-) -> List[Path]:
+) -> list[Path]:
     """
     Создать клипы по готовым диапазонам.
 
@@ -318,7 +316,7 @@ def make_clips(
         logger.warning("moviepy не смог открыть видео (это не критично): %s", exc)
 
     # 2. Нарезаем каждый диапазон. Падение одного не валит остальные.
-    results: List[Path] = []
+    results: list[Path] = []
 
     total = len(ranges)
     for i, r in enumerate(ranges, start=1):

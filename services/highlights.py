@@ -28,7 +28,6 @@ import logging
 import os
 import re
 from dataclasses import dataclass
-from typing import List, Optional
 
 from services.editor import ClipRange
 from services.transcriber import TranscriptResult
@@ -54,13 +53,13 @@ class LLMUnavailableError(HighlightsError):
 class LLMConfig:
     """Настройки LLM. Берутся из env при создании."""
 
-    api_key: Optional[str]
+    api_key: str | None
     base_url: str
     model: str
     timeout: float
 
     @classmethod
-    def from_env(cls) -> "LLMConfig":
+    def from_env(cls) -> LLMConfig:
         return cls(
             api_key=os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY"),
             base_url=os.getenv(
@@ -76,9 +75,9 @@ class LLMConfig:
 # Вспомогательные функции
 # ──────────────────────────────────────────────────────────────────────────────
 def _chunk_segments(
-    segments: List,
+    segments: list,
     chunk_seconds: float,
-) -> List[dict]:
+) -> list[dict]:
     """
     Сгруппировать сегменты речи в чанки по N секунд.
     Возвращает список:
@@ -87,9 +86,9 @@ def _chunk_segments(
     if not segments:
         return []
 
-    chunks: List[dict] = []
+    chunks: list[dict] = []
     cur_start = segments[0].start
-    cur_text_parts: List[str] = []
+    cur_text_parts: list[str] = []
     cur_end = segments[0].start
     idx = 0
 
@@ -124,7 +123,7 @@ def _chunk_segments(
 
 
 def _build_llm_prompt(
-    chunks: List[dict],
+    chunks: list[dict],
     video_title: str,
     clip_count: int,
     clip_duration: int,
@@ -168,7 +167,7 @@ def _build_llm_prompt(
 """
 
 
-def _parse_llm_response(raw: str, expected_count: int) -> List[dict]:
+def _parse_llm_response(raw: str, expected_count: int) -> list[dict]:
     """
     Распарсить JSON из ответа LLM. Устойчив к:
         • markdown-обёрткам ```json ... ```
@@ -191,7 +190,7 @@ def _parse_llm_response(raw: str, expected_count: int) -> List[dict]:
     if not isinstance(clips, list) or not clips:
         raise LLMUnavailableError(f"LLM не вернула список 'clips'. Ответ: {data}")
 
-    parsed: List[dict] = []
+    parsed: list[dict] = []
     for c in clips:
         if "start" not in c or "end" not in c:
             continue
@@ -211,11 +210,11 @@ def _parse_llm_response(raw: str, expected_count: int) -> List[dict]:
 
 
 def _filter_valid_ranges(
-    candidates: List[dict],
+    candidates: list[dict],
     total_duration: float,
     skip_edges_percent: int,
     min_clip: float,
-) -> List[ClipRange]:
+) -> list[ClipRange]:
     """
     Отфильтровать LLM-кандидатов:
         • старт >= safe_start
@@ -227,7 +226,7 @@ def _filter_valid_ranges(
     safe_start = edges
     safe_end = total_duration - edges
 
-    ranges: List[ClipRange] = []
+    ranges: list[ClipRange] = []
     for i, c in enumerate(candidates, start=1):
         s = c["start"]
         e = c["end"]
@@ -256,7 +255,7 @@ def pick_highlights_random(
     clip_count: int,
     clip_duration: float,
     skip_edges_percent: int = 10,
-) -> List[ClipRange]:
+) -> list[ClipRange]:
     """
     Запасной вариант: случайные клипы из «середины» видео.
     Используется, если LLM недоступна или не настроена.
@@ -287,7 +286,7 @@ def pick_highlights_random(
         # 50 равномерных точек
         step = (max_start - safe_start) / 49 if max_start > safe_start else 0
         possible = [safe_start + step * i for i in range(50)] if step > 0 else [safe_start]
-        chosen: List[float] = []
+        chosen: list[float] = []
         last_end = -1e9
         for _ in range(count):
             candidates = [p for p in possible if p >= last_end + min_step] or possible
@@ -308,8 +307,8 @@ def pick_highlights_llm(
     clip_count: int,
     clip_duration: int,
     skip_edges_percent: int = 10,
-    config: Optional[LLMConfig] = None,
-) -> List[ClipRange]:
+    config: LLMConfig | None = None,
+) -> list[ClipRange]:
     """
     «Умный» выбор через LLM. Бросает LLMUnavailableError, если что-то пошло не так.
     """
@@ -333,7 +332,7 @@ def pick_highlights_llm(
     full_text_chars = sum(c["char_count"] for c in chunks)
     if full_text_chars > max_chars:
         # Сжимаем через более крупные чанки или отбрасываем хвосты.
-        scale = max_chars / full_text_chars
+        max_chars / full_text_chars
         chunk_seconds *= 2  # укрупняем чанки
         chunks = _chunk_segments(transcript.segments, chunk_seconds=chunk_seconds)
         logger.info(
@@ -408,13 +407,13 @@ def pick_highlights_llm(
 
 
 def pick_highlights(
-    transcript: Optional[TranscriptResult],
+    transcript: TranscriptResult | None,
     total_duration: float,
     clip_count: int,
     clip_duration: int,
     skip_edges_percent: int = 10,
     prefer_llm: bool = True,
-) -> tuple[List[ClipRange], str]:
+) -> tuple[list[ClipRange], str]:
     """
     Универсальная точка входа:
         1. Если есть транскрипт И prefer_llm=True И есть OPENAI_API_KEY — LLM.

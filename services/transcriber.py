@@ -29,7 +29,6 @@ import subprocess
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
 
 # faster-whisper загружается лениво — чтобы падение установки
 # не валило весь бот при импорте.
@@ -75,8 +74,8 @@ class TranscriptResult:
     """Полный результат транскрибации видео."""
     language: str                              # определённый язык (например, "ru")
     full_text: str                             # склеенный текст всех сегментов
-    segments: List[TranscriptSegment] = field(default_factory=list)
-    audio_path: Optional[Path] = None          # путь к .wav (если не удалили)
+    segments: list[TranscriptSegment] = field(default_factory=list)
+    audio_path: Path | None = None          # путь к .wav (если не удалили)
     title: str = ""                            # название видео (для LLM-промпта)
 
 
@@ -142,7 +141,7 @@ def extract_audio(video_path: Path, output_path: Path) -> Path:
 
     logger.info("ffmpeg audio extract: %s → %s", video_path.name, output_path.name)
     try:
-        proc = subprocess.run(
+        subprocess.run(
             cmd,
             capture_output=True,
             text=True,
@@ -266,8 +265,8 @@ def transcribe_video(
         # segments_iter — генератор, его надо «выпить» здесь же,
         # пока жив ресурс audio_path.
         audio_duration = float(getattr(info, "duration", 0.0) or 0.0)
-        segments: List[TranscriptSegment] = []
-        full_text_parts: List[str] = []
+        segments: list[TranscriptSegment] = []
+        full_text_parts: list[str] = []
         for seg in segments_iter:
             text = (seg.text or "").strip()
             if not text:

@@ -19,7 +19,6 @@ from config import settings
 from handlers import register as register_handlers
 from utils.helpers import wipe_temp_dirs
 
-
 logger = logging.getLogger(__name__)
 
 

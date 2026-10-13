@@ -14,7 +14,6 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from bot.fsm import VideoStates
 from bot.pipeline import run_pipeline
 from bot.prefs import get_prefs
 from bot.semaphores import GLOBAL_SEM, user_sem
@@ -54,9 +53,8 @@ async def handle_url_message(message: Message, state: FSMContext) -> None:
         f"Запускаю пайплайн…\n\nПодожди ~1–5 минут."
     )
 
-    async with GLOBAL_SEM:
-        async with semaphore:
-            await run_pipeline(message, status, url, chat_id)
+    async with GLOBAL_SEM, semaphore:
+        await run_pipeline(message, status, url, chat_id)
     await state.clear()
 
 

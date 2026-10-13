@@ -25,7 +25,6 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import yt_dlp
 
@@ -60,7 +59,7 @@ class DownloadResult:
     file_path: Path          # путь к скачанному файлу
     title: str               # название видео
     duration: float          # длительность в секундах
-    uploader: Optional[str]  # автор канала (может быть None)
+    uploader: str | None  # автор канала (может быть None)
     source_url: str          # исходный URL (для логов)
 
 

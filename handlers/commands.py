@@ -7,7 +7,7 @@ handlers/commands.py
 
 from __future__ import annotations
 
-from aiogram import Dispatcher, F
+from aiogram import Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
