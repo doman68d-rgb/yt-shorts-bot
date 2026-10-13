@@ -22,8 +22,8 @@ services/transcriber.py
 
 from __future__ import annotations
 
+import contextlib
 import logging
-import os
 import shutil
 import subprocess
 import tempfile
@@ -258,8 +258,6 @@ def transcribe_video(
             vad_filter=True,
             vad_parameters={"min_silence_duration_ms": 500},
             # language не задаём — модель сама определит.
-            # Если хочешь форсировать русский — раскомментируй:
-            # language="ru",
         )
 
         # segments_iter — генератор, его надо «выпить» здесь же,
@@ -275,10 +273,8 @@ def transcribe_video(
             if progress_callback is not None and audio_duration > 0:
                 # Прогресс whisper: 50% .. 85%.
                 p = 50.0 + (ts.end / audio_duration) * 35.0
-                try:
+                with contextlib.suppress(Exception):
                     progress_callback(min(p, 85.0))
-                except Exception:  # noqa: BLE001
-                    pass
             segments.append(ts)
             full_text_parts.append(text)
 
@@ -310,7 +306,7 @@ def transcribe_video(
             if audio_path.exists():
                 # Не удаляем, если кто-то снаружи захотел пошарить.
                 # Но обычно у нас всё равно весь tmp_dir чистится helpers.
-                os.remove(audio_path)
+                audio_path.unlink()
         except OSError:
             pass
 

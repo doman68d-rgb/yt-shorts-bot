@@ -21,8 +21,8 @@ GitHub Pages лендинг для проекта.
 ## 🚀 Quick start
 
 ```bash
-git clone https://github.com/<your-username>/narezkashorts
-cd narezkashorts
+git clone https://github.com/doman68d-rgb/yt-shorts-bot
+cd yt-shorts-bot
 cp .env.example .env
 # Add your BOT_TOKEN
 docker compose up -d
@@ -53,10 +53,10 @@ Dual-licensed under:
 - **AGPL-3.0** for open-source use
 - **Commercial** license for embedding in closed-source products
 
-See [LICENSE](https://github.com/<your-username>/narezkashorts/blob/main/LICENSE) and [COMMERCIAL.md](https://github.com/<your-username>/narezkashorts/blob/main/COMMERCIAL.md).
+See [LICENSE](https://github.com/doman68d-rgb/yt-shorts-bot/blob/main/LICENSE) and [COMMERCIAL.md](https://github.com/doman68d-rgb/yt-shorts-bot/blob/main/COMMERCIAL.md).
 
 ## ⭐ Star us on GitHub!
 
 If this is useful to you, please star the repo — it really helps.
 
-[GitHub repo →](https://github.com/<your-username>/narezkashorts)
+[GitHub repo →](https://github.com/doman68d-rgb/yt-shorts-bot)

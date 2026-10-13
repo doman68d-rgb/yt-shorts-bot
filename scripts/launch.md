@@ -51,8 +51,8 @@ Looking for feedback on:
 2. UX in Telegram (commands vs inline buttons vs both)
 3. What features would make this actually useful for content creators?
 
-GitHub: <link>
-Demo bot: @<demo>
+GitHub: https://github.com/doman68d-rgb/yt-shorts-bot
+Demo bot: @@demo_yt_shorts_bot
 ```
 
 ### Reddit r/Python
@@ -76,7 +76,7 @@ Highlights:
 - 50+ tests in CI
 - AGPL-3.0 + commercial dual-license
 
-GitHub: <link>
+GitHub: https://github.com/doman68d-rgb/yt-shorts-bot
 
 What's next: I'm thinking of adding subtitles-on-clip as an option.
 What features would you want?
@@ -90,9 +90,9 @@ What features would you want?
 ```
 Link your YouTube video → bot returns 3 vertical Shorts ready for TikTok.
 
-Demo: @<demo_bot>
+Demo: @@demo_yt_shorts_bot
 
-GitHub: <link>
+GitHub: https://github.com/doman68d-rgb/yt-shorts-bot
 ```
 
 ### Reddit r/SideProject
@@ -113,7 +113,7 @@ myself.
 Open-sourced it last weekend with the LLM call being optional (it works
 without an API key, just picks random clips).
 
-GitHub: <link>
+GitHub: https://github.com/doman68d-rgb/yt-shorts-bot
 
 Curious what other "I shouldn't have to do this manually" tasks would
 benefit from this kind of automation.
@@ -131,7 +131,7 @@ Drop a link → wait 3 min → get back 3 vertical clips.
 Under the hood: faster-whisper for transcription + LLM for highlight
 selection + ffmpeg for cropping.
 
-GitHub: <link> 🧵👇
+GitHub: https://github.com/doman68d-rgb/yt-shorts-bot 🧵👇
 ```
 
 **Tweet 2/7:**
@@ -193,8 +193,8 @@ This is the same model GitLab, Sentry, etc. use.
 **Tweet 7/7:**
 ```
 Try it:
-- Demo: @<demo_bot>
-- GitHub: <link>
+- Demo: @@demo_yt_shorts_bot
+- GitHub: https://github.com/doman68d-rgb/yt-shorts-bot
 - Docker: `git clone && docker compose up`
 
 If you make something cool with it, DM me!
@@ -225,8 +225,8 @@ PRs welcome. Especially:
 - Плагин-стратегия: можно с LLM, можно без (fallback на random)
 - 50+ тестов в CI
 
-Бот уже работает: @<demo>
-Код на GitHub: <link>
+Бот уже работает: @@demo_yt_shorts_bot
+Код на GitHub: https://github.com/doman68d-rgb/yt-shorts-bot
 
 Буду рад звёздам ⭐ и pull-реквестам. Особенно интересует:
 - мультиязычность (сейчас работает на любых языках, но промпт LLM на английском)

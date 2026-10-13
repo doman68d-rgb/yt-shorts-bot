@@ -29,6 +29,7 @@ services/editor.py
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import random
 import subprocess
@@ -324,10 +325,8 @@ def make_clips(
         out_path = settings.CLIPS_DIR / out_name
 
         if progress_hook is not None:
-            try:
+            with contextlib.suppress(Exception):
                 progress_hook(i, total)
-            except Exception:  # noqa: BLE001
-                pass
 
         try:
             _clip_video_to_vertical(

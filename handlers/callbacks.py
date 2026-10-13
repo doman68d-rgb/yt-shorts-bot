@@ -98,9 +98,9 @@ async def on_set_length(call: CallbackQuery) -> None:
     await call.answer()
     prefs = get_prefs(call.message.chat.id)
     rows = []
-    for l in LENGTHS:
-        label = f"{l} сек ✅" if l == prefs.clip_duration else f"{l} сек"
-        rows.append([InlineKeyboardButton(text=label, callback_data=f"length_{l}")])
+    for length in LENGTHS:
+        label = f"{length} сек ✅" if length == prefs.clip_duration else f"{length} сек"
+        rows.append([InlineKeyboardButton(text=label, callback_data=f"length_{length}")])
     await call.message.edit_text("Выбери длину клипа:", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
 
 
@@ -125,9 +125,9 @@ async def on_count(call: CallbackQuery) -> None:
 
 
 async def on_length(call: CallbackQuery) -> None:
-    l = int(call.data.split("_", 1)[1])
-    update_prefs(call.message.chat.id, clip_duration=l)
-    await call.answer(f"✅ {l} сек")
+    length = int(call.data.split("_", 1)[1])
+    update_prefs(call.message.chat.id, clip_duration=length)
+    await call.answer(f"✅ {length} сек")
     await show_settings(call.message, is_edit=True)
 
 

@@ -184,7 +184,7 @@ def _parse_llm_response(raw: str, expected_count: int) -> list[dict]:
     try:
         data = json.loads(payload)
     except json.JSONDecodeError as exc:
-        raise LLMUnavailableError(f"Битый JSON от LLM: {exc}\nПолучено: {raw[:300]}")
+        raise LLMUnavailableError(f"Битый JSON от LLM: {exc}\nПолучено: {raw[:300]}") from exc
 
     clips = data.get("clips")
     if not isinstance(clips, list) or not clips:

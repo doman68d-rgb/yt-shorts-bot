@@ -45,8 +45,8 @@ clips (1080×1920). With real-time progress in the chat.
 #    Linux:   sudo apt install ffmpeg
 
 # 2. Install dependencies
-git clone https://github.com/<your-username>/narezkashorts.git
-cd narezkashorts
+git clone https://github.com/doman68d-rgb/yt-shorts-bot.git
+cd yt-shorts-bot
 python -m venv venv
 source venv/Scripts/activate   # Windows Git Bash
 # source venv/bin/activate     # Linux / macOS

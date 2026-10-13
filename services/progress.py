@@ -208,11 +208,8 @@ class ProgressReporter:
 
                 text = self.state.render()
                 if text != self._last_sent_text:
-                    try:
+                    with contextlib.suppress(Exception):
                         await self.status_msg.edit_text(text, parse_mode="Markdown")
-                    except Exception:
-                        # «Message is not modified», «Chat not found» и пр. — не критично.
-                        pass
                     self._last_sent_text = text
                     self._last_sent_at = now
 

@@ -7,6 +7,7 @@ bot/messages.py
 
 from __future__ import annotations
 
+import contextlib
 import logging
 
 from aiogram import Bot
@@ -27,7 +28,5 @@ async def safe_delete(msg: Message | None) -> None:
     """Удалить сообщение без падения (если уже удалено/нет прав)."""
     if msg is None:
         return
-    try:
+    with contextlib.suppress(Exception):
         await msg.delete()
-    except Exception:  # noqa: BLE001
-        pass

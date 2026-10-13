@@ -1,5 +1,5 @@
 [project]
-name = "narezkashorts"
+name = "yt-shorts-bot"
 version = "0.1.0"
 description = "Telegram bot that turns long YouTube videos into viral Shorts using AI"
 authors = [
@@ -40,9 +40,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/<your-username>/narezkashorts"
-Repository = "https://github.com/<your-username>/narezkashorts"
-Issues = "https://github.com/<your-username>/narezkashorts/issues"
+Homepage = "https://github.com/doman68d-rgb/yt-shorts-bot"
+Repository = "https://github.com/doman68d-rgb/yt-shorts-bot"
+Issues = "https://github.com/doman68d-rgb/yt-shorts-bot/issues"
 
 [tool.pytest.ini_options]
 minversion = "8.0"
