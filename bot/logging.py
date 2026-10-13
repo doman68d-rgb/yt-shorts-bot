@@ -42,8 +42,13 @@ def setup_logging(log_file: str = "bot.log") -> None:
     root.setLevel(logging.INFO)
 
     # ── Подавить шум ────────────────────────────────────────────────────────
-    for noisy in ("aiohttp.access", "aiohttp.client", "aiohttp.internal",
-                  "aiogram.event", "multipart"):
+    for noisy in (
+        "aiohttp.access",
+        "aiohttp.client",
+        "aiohttp.internal",
+        "aiogram.event",
+        "multipart",
+    ):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
 

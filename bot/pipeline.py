@@ -65,7 +65,9 @@ async def run_pipeline(
             reporter.set_step("downloading", "⬇️ Скачиваю видео…", 0)
             try:
                 result: DownloadResult = await asyncio.to_thread(
-                    download_video, url, job_id,
+                    download_video,
+                    url,
+                    job_id,
                     progress_hook=reporter.yt_dlp_update,
                 )
             except InvalidURLError:
@@ -74,7 +76,8 @@ async def run_pipeline(
                 return
             except VideoUnavailableError:
                 await safe_send(
-                    bot, chat_id,
+                    bot,
+                    chat_id,
                     "🚫 Видео недоступно (приватное / удалено / региональная блокировка).\n"
                     "Попробуй другое видео.",
                 )
@@ -106,7 +109,8 @@ async def run_pipeline(
             except TranscriptionError as exc:
                 logger.warning("Whisper упал: %s", exc)
                 await safe_send(
-                    bot, chat_id,
+                    bot,
+                    chat_id,
                     f"⚠️ Скачал видео, но распознать речь не получилось:\n{exc}\n"
                     f"Если в видео нет речи — это ожидаемо.\n"
                     f"Продолжаю обработку без транскрипта…",
@@ -116,7 +120,9 @@ async def run_pipeline(
             # ─── ШАГ 3: ВЫБОР МОМЕНТОВ ────────────────────────────────────────
             reporter.set_step(
                 "highlights",
-                "🧠 LLM-выбор моментов…" if prefs.strategy == "smart" else "🎲 Random: выбираю моменты…",
+                "🧠 LLM-выбор моментов…"
+                if prefs.strategy == "smart"
+                else "🎲 Random: выбираю моменты…",
                 85.0,
             )
             await asyncio.sleep(0.05)  # дать сообщению отрисоваться
@@ -167,7 +173,7 @@ async def run_pipeline(
             for i, clip_path in enumerate(clip_paths, start=1):
                 cap = (
                     f"📹 Клип {i}/{len(clip_paths)}\n"
-                    f"⏱ {clip_range(ranges[i-1])}\n"
+                    f"⏱ {clip_range(ranges[i - 1])}\n"
                     f"📦 {human_bytes(clip_path.stat().st_size)}\n"
                     f"🧠 Стратегия: {strategy_used}"
                 )
@@ -181,7 +187,8 @@ async def run_pipeline(
                 except Exception as exc:  # noqa: BLE001
                     logger.exception("Не удалось отправить клип %s", clip_path)
                     await safe_send(
-                        bot, chat_id,
+                        bot,
+                        chat_id,
                         f"⚠️ Клип {i} не отправился: {exc}",
                     )
 
@@ -191,7 +198,8 @@ async def run_pipeline(
                 await safe_send(bot, chat_id, "😔 Не удалось отправить ни одного клипа.")
             else:
                 await safe_send(
-                    bot, chat_id,
+                    bot,
+                    chat_id,
                     f"✨ Готово! Отправил {sent} из {len(clip_paths)} клипов "
                     f"(стратегия: {'🧠 LLM' if strategy_used == 'llm' else '🎲 Random'}).",
                 )
@@ -201,7 +209,8 @@ async def run_pipeline(
             logger.exception("Неизвестная ошибка пайплайна")
             with contextlib.suppress(Exception):
                 await safe_send(
-                    bot, chat_id,
+                    bot,
+                    chat_id,
                     f"💥 Что-то пошло совсем не так:\n{exc}\n\n"
                     f"Логи сохранены. Попробуй ещё раз чуть позже.",
                 )

@@ -134,7 +134,9 @@ def wipe_temp_dirs() -> None:
         if count:
             logger.info(
                 "wipe_temp_dirs[%s]: удалено %d файлов (%.1f MB)",
-                folder.name, count, bytes_ / 1024 / 1024,
+                folder.name,
+                count,
+                bytes_ / 1024 / 1024,
             )
 
 
@@ -175,6 +177,7 @@ def resolve_ffmpeg_location() -> str | None:
     """
     try:
         import imageio_ffmpeg  # type: ignore
+
         bundled = imageio_ffmpeg.get_ffmpeg_exe()
         if bundled and Path(bundled).exists():
             return bundled

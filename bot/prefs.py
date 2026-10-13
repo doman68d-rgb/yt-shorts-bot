@@ -20,7 +20,7 @@ class UserPrefs:
 
     clip_count: int = int(settings.CLIP_COUNT)
     clip_duration: int = int(settings.CLIP_DURATION)
-    strategy: str = "smart"   # "smart" (LLM) или "random"
+    strategy: str = "smart"  # "smart" (LLM) или "random"
 
 
 # Глобальное хранилище. На проде заменить на Redis.

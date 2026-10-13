@@ -15,7 +15,7 @@ from services.downloader import (
 
 class TestValidateUrl:
     def test_https(self):
-        _validate_url("https://youtube.com/watch?v=1")   # не упадёт
+        _validate_url("https://youtube.com/watch?v=1")  # не упадёт
 
     def test_http(self):
         _validate_url("http://example.com/")  # не упадёт
@@ -26,7 +26,7 @@ class TestValidateUrl:
 
     def test_none(self):
         with pytest.raises(InvalidURLError):
-            _validate_url(None)   # type: ignore[arg-type]
+            _validate_url(None)  # type: ignore[arg-type]
 
     def test_no_scheme(self):
         with pytest.raises(InvalidURLError):

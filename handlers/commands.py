@@ -38,11 +38,13 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
         f"Хочешь другие — жми «⚙️ Настройки».\n\n"
         f"⚠️ На обработку уходит 1–5 минут. Прогресс виден в реальном времени."
     )
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📘 Помощь", callback_data="help")],
-        [InlineKeyboardButton(text="⚙️ Настройки клипов", callback_data="settings")],
-        [InlineKeyboardButton(text="▶️ Прислать ссылку", callback_data="send_url")],
-    ])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="📘 Помощь", callback_data="help")],
+            [InlineKeyboardButton(text="⚙️ Настройки клипов", callback_data="settings")],
+            [InlineKeyboardButton(text="▶️ Прислать ссылку", callback_data="send_url")],
+        ]
+    )
     await message.answer(text, reply_markup=kb, parse_mode=ParseMode.HTML)
     await state.set_state(VideoStates.waiting_url)
 
@@ -97,6 +99,7 @@ async def cmd_clips(message: Message) -> None:
         return
 
     from bot.prefs import update
+
     update(message.chat.id, clip_count=n, clip_duration=length)
     await message.answer(
         f"✅ Запомнил: <b>{n}</b> клипов по <b>{length}</b> сек каждый.\n"
@@ -110,10 +113,12 @@ async def cmd_strategy(message: Message) -> None:
     prefs = get_prefs(message.chat.id)
     smart_label = "🧠 Smart (LLM) ✅" if prefs.strategy == "smart" else "🧠 Smart (LLM)"
     random_label = "🎲 Random ✅" if prefs.strategy == "random" else "🎲 Random"
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=smart_label, callback_data="strategy_smart")],
-        [InlineKeyboardButton(text=random_label, callback_data="strategy_random")],
-    ])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=smart_label, callback_data="strategy_smart")],
+            [InlineKeyboardButton(text=random_label, callback_data="strategy_random")],
+        ]
+    )
     await message.answer(
         "Какую стратегию выбора моментов использовать?",
         reply_markup=kb,

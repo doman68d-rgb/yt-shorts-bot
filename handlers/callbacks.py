@@ -36,12 +36,14 @@ async def show_settings(message: Message, is_edit: bool = False) -> None:
         f"Стратегия: <b>{'🧠 Smart (LLM)' if prefs.strategy == 'smart' else '🎲 Random'}</b>\n\n"
         "Выбери, что менять:"
     )
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔢 Сколько клипов", callback_data="set_count")],
-        [InlineKeyboardButton(text="⏱ Длина клипа", callback_data="set_length")],
-        [InlineKeyboardButton(text="🧠 Стратегия", callback_data="set_strategy")],
-        [InlineKeyboardButton(text="◀️ Назад", callback_data="back_start")],
-    ])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🔢 Сколько клипов", callback_data="set_count")],
+            [InlineKeyboardButton(text="⏱ Длина клипа", callback_data="set_length")],
+            [InlineKeyboardButton(text="🧠 Стратегия", callback_data="set_strategy")],
+            [InlineKeyboardButton(text="◀️ Назад", callback_data="back_start")],
+        ]
+    )
     if is_edit:
         await message.edit_text(text, reply_markup=kb, parse_mode=ParseMode.HTML)
     else:
@@ -66,16 +68,12 @@ async def on_help(call: CallbackQuery) -> None:
         "   /strategy   — переключить smart ↔ random\n"
         "   /help       — эта справка\n",
     )
-    await call.message.answer(
-        "А ещё подробная справка по команде /help."
-    )
+    await call.message.answer("А ещё подробная справка по команде /help.")
 
 
 async def on_send_url(call: CallbackQuery, state: FSMContext) -> None:
     await call.answer()
-    await call.message.answer(
-        "📎 Пришли ссылку на видео сюда в чат, я подхвачу автоматически."
-    )
+    await call.message.answer("📎 Пришли ссылку на видео сюда в чат, я подхвачу автоматически.")
     await state.set_state(VideoStates.waiting_url)
 
 
@@ -91,7 +89,9 @@ async def on_set_count(call: CallbackQuery) -> None:
     for n in COUNTS:
         label = f"{n} клип(ов) ✅" if n == prefs.clip_count else f"{n} клип(ов)"
         rows.append([InlineKeyboardButton(text=label, callback_data=f"count_{n}")])
-    await call.message.edit_text("Выбери количество клипов:", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
+    await call.message.edit_text(
+        "Выбери количество клипов:", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows)
+    )
 
 
 async def on_set_length(call: CallbackQuery) -> None:
@@ -101,7 +101,9 @@ async def on_set_length(call: CallbackQuery) -> None:
     for length in LENGTHS:
         label = f"{length} сек ✅" if length == prefs.clip_duration else f"{length} сек"
         rows.append([InlineKeyboardButton(text=label, callback_data=f"length_{length}")])
-    await call.message.edit_text("Выбери длину клипа:", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
+    await call.message.edit_text(
+        "Выбери длину клипа:", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows)
+    )
 
 
 async def on_set_strategy(call: CallbackQuery) -> None:
@@ -109,10 +111,12 @@ async def on_set_strategy(call: CallbackQuery) -> None:
     prefs = get_prefs(call.message.chat.id)
     smart_label = "🧠 Smart (LLM) ✅" if prefs.strategy == "smart" else "🧠 Smart (LLM)"
     random_label = "🎲 Random ✅" if prefs.strategy == "random" else "🎲 Random"
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=smart_label, callback_data="strategy_smart_inline")],
-        [InlineKeyboardButton(text=random_label, callback_data="strategy_random_inline")],
-    ])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=smart_label, callback_data="strategy_smart_inline")],
+            [InlineKeyboardButton(text=random_label, callback_data="strategy_random_inline")],
+        ]
+    )
     await call.message.edit_text("Стратегия выбора моментов:", reply_markup=kb)
 
 
@@ -159,9 +163,7 @@ async def on_strategy_random(call: CallbackQuery) -> None:
 
 async def on_back_start(call: CallbackQuery) -> None:
     await call.answer()
-    await call.message.edit_text(
-        "👉 Кинь ссылку на YouTube — начнём обработку."
-    )
+    await call.message.edit_text("👉 Кинь ссылку на YouTube — начнём обработку.")
 
 
 def register(dp: Dispatcher) -> None:

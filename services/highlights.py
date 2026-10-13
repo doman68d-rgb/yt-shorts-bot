@@ -96,13 +96,15 @@ def _chunk_segments(
         # Если чанк переполнен И текущий сегмент не начинается в этом же чанке
         # — закрываем чанк и открываем новый.
         if seg.start - cur_start > chunk_seconds and cur_text_parts:
-            chunks.append({
-                "index": idx,
-                "start": cur_start,
-                "end": cur_end,
-                "text": " ".join(cur_text_parts).strip(),
-                "char_count": sum(len(p) for p in cur_text_parts),
-            })
+            chunks.append(
+                {
+                    "index": idx,
+                    "start": cur_start,
+                    "end": cur_end,
+                    "text": " ".join(cur_text_parts).strip(),
+                    "char_count": sum(len(p) for p in cur_text_parts),
+                }
+            )
             idx += 1
             cur_start = seg.start
             cur_text_parts = []
@@ -111,13 +113,15 @@ def _chunk_segments(
 
     # Финальный чанк
     if cur_text_parts:
-        chunks.append({
-            "index": idx,
-            "start": cur_start,
-            "end": cur_end,
-            "text": " ".join(cur_text_parts).strip(),
-            "char_count": sum(len(p) for p in cur_text_parts),
-        })
+        chunks.append(
+            {
+                "index": idx,
+                "start": cur_start,
+                "end": cur_end,
+                "text": " ".join(cur_text_parts).strip(),
+                "char_count": sum(len(p) for p in cur_text_parts),
+            }
+        )
 
     return chunks
 
@@ -131,9 +135,7 @@ def _build_llm_prompt(
     """Сформировать промпт для LLM."""
     chunks_text = []
     for c in chunks:
-        chunks_text.append(
-            f"[#{c['index']} t={c['start']:.0f}-{c['end']:.0f}s] {c['text']}"
-        )
+        chunks_text.append(f"[#{c['index']} t={c['start']:.0f}-{c['end']:.0f}s] {c['text']}")
     chunks_block = "\n".join(chunks_text)
 
     return f"""Ты — ассистент для создания Shorts / TikTok клипов.
@@ -141,7 +143,7 @@ def _build_llm_prompt(
 Видео: «{video_title}»
 
 Ниже — разбитый на чанки транскрипт с временными метками. Каждый чанк — это
-кусок речи длительностью ~{int((chunks[1]['end'] - chunks[0]['end']) + (chunks[1]['end'] - chunks[1]['start'])) if len(chunks) > 1 else 30} секунд.
+кусок речи длительностью ~{int((chunks[1]["end"] - chunks[0]["end"]) + (chunks[1]["end"] - chunks[1]["start"])) if len(chunks) > 1 else 30} секунд.
 
 {chunks_block}
 
@@ -176,9 +178,7 @@ def _parse_llm_response(raw: str, expected_count: int) -> list[dict]:
     # Вырезаем JSON в фигурных скобках — самый надёжный способ.
     match = re.search(r"\{[\s\S]*\}", raw)
     if not match:
-        raise LLMUnavailableError(
-            f"LLM не вернула JSON. Первые 200 символов:\n{raw[:200]}"
-        )
+        raise LLMUnavailableError(f"LLM не вернула JSON. Первые 200 символов:\n{raw[:200]}")
     payload = match.group(0)
 
     try:
@@ -195,11 +195,13 @@ def _parse_llm_response(raw: str, expected_count: int) -> list[dict]:
         if "start" not in c or "end" not in c:
             continue
         try:
-            parsed.append({
-                "start": float(c["start"]),
-                "end": float(c["end"]),
-                "reason": str(c.get("reason", ""))[:80],
-            })
+            parsed.append(
+                {
+                    "start": float(c["start"]),
+                    "end": float(c["end"]),
+                    "reason": str(c.get("reason", ""))[:80],
+                }
+            )
         except (ValueError, TypeError):
             continue
 
@@ -235,14 +237,19 @@ def _filter_valid_ranges(
             continue
         s = max(safe_start, min(s, safe_end))
         e = max(s + min_clip, min(e, safe_end))
-        ranges.append(ClipRange(
-            index=i,
-            start=s,
-            end=e,
-        ))
+        ranges.append(
+            ClipRange(
+                index=i,
+                start=s,
+                end=e,
+            )
+        )
         logger.info(
             "✔ LLM выбрал момент #%d: [%.1f → %.1f] %s",
-            i, s, e, c.get("reason", ""),
+            i,
+            s,
+            e,
+            c.get("reason", ""),
         )
     return ranges
 
@@ -296,8 +303,7 @@ def pick_highlights_random(
         starts = sorted(chosen)
 
     return [
-        ClipRange(index=i + 1, start=s, end=s + actual_clip_length)
-        for i, s in enumerate(starts)
+        ClipRange(index=i + 1, start=s, end=s + actual_clip_length) for i, s in enumerate(starts)
     ]
 
 
@@ -337,7 +343,8 @@ def pick_highlights_llm(
         chunks = _chunk_segments(transcript.segments, chunk_seconds=chunk_seconds)
         logger.info(
             "Транскрипт длинный (%d симв.), укрупнил чанки до %.0fs",
-            full_text_chars, chunk_seconds,
+            full_text_chars,
+            chunk_seconds,
         )
 
     # 3. Формируем промпт.
@@ -351,7 +358,10 @@ def pick_highlights_llm(
 
     logger.info(
         "Отправляю в LLM (%s/%s): %d чанков, %d символов промпта",
-        cfg.base_url, cfg.model, len(chunks), len(prompt),
+        cfg.base_url,
+        cfg.model,
+        len(chunks),
+        len(prompt),
     )
 
     # 4. HTTP-запрос к OpenAI-совместимому API.

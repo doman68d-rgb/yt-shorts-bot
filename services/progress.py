@@ -78,8 +78,8 @@ class ProgressReporter:
 
     def __init__(
         self,
-        bot,                                # aiogram Bot
-        status_msg,                         # aiogram Message
+        bot,  # aiogram Bot
+        status_msg,  # aiogram Message
         total_seconds: float | None = None,
     ):
         self.bot = bot

@@ -60,6 +60,7 @@ class FFmpegNotFoundError(TranscriptionError):
 @dataclass(frozen=True)
 class TranscriptSegment:
     """Один фрагмент речи с временными метками (секунды)."""
+
     start: float
     end: float
     text: str
@@ -72,11 +73,12 @@ class TranscriptSegment:
 @dataclass(frozen=True)
 class TranscriptResult:
     """Полный результат транскрибации видео."""
-    language: str                              # определённый язык (например, "ru")
-    full_text: str                             # склеенный текст всех сегментов
+
+    language: str  # определённый язык (например, "ru")
+    full_text: str  # склеенный текст всех сегментов
     segments: list[TranscriptSegment] = field(default_factory=list)
-    audio_path: Path | None = None          # путь к .wav (если не удалили)
-    title: str = ""                            # название видео (для LLM-промпта)
+    audio_path: Path | None = None  # путь к .wav (если не удалили)
+    title: str = ""  # название видео (для LLM-промпта)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -92,6 +94,7 @@ def _find_ffmpeg() -> str:
     # Способ 1: imageio-ffmpeg (bundled binary, удобно для Windows).
     try:
         import imageio_ffmpeg  # type: ignore
+
         bundled = imageio_ffmpeg.get_ffmpeg_exe()
         if bundled and Path(bundled).exists():
             logger.info("Используем bundled ffmpeg: %s", bundled)
@@ -129,13 +132,19 @@ def extract_audio(video_path: Path, output_path: Path) -> Path:
 
     cmd = [
         ffmpeg_bin,
-        "-hide_banner", "-loglevel", "error",   # без спама в консоль
-        "-y",                                   # перезаписать выход
-        "-i", str(video_path),                  # вход
-        "-vn",                                  # без видео
-        "-ac", "1",                             # mono
-        "-ar", "16000",                         # 16 kHz
-        "-f", "wav",                            # формат
+        "-hide_banner",
+        "-loglevel",
+        "error",  # без спама в консоль
+        "-y",  # перезаписать выход
+        "-i",
+        str(video_path),  # вход
+        "-vn",  # без видео
+        "-ac",
+        "1",  # mono
+        "-ar",
+        "16000",  # 16 kHz
+        "-f",
+        "wav",  # формат
         str(output_path),
     ]
 
@@ -158,9 +167,7 @@ def extract_audio(video_path: Path, output_path: Path) -> Path:
         ) from exc
 
     if not output_path.exists() or output_path.stat().st_size < 100:
-        raise AudioExtractionError(
-            f"ffmpeg отработал, но аудио-файл пустой: {output_path}"
-        )
+        raise AudioExtractionError(f"ffmpeg отработал, но аудио-файл пустой: {output_path}")
 
     return output_path
 
@@ -176,7 +183,9 @@ def _get_model() -> WhisperModel:
     Ленивая загрузка модели Whisper. Кэшируем по «имени настроек», чтобы
     при повторных вызовах не грузить модель заново (это 100+ МБ для base).
     """
-    cache_key = f"{settings.WHISPER_MODEL}_{settings.WHISPER_DEVICE}_{settings.WHISPER_COMPUTE_TYPE}"
+    cache_key = (
+        f"{settings.WHISPER_MODEL}_{settings.WHISPER_DEVICE}_{settings.WHISPER_COMPUTE_TYPE}"
+    )
     if cache_key in _model_cache:
         return _model_cache[cache_key]
 
@@ -283,7 +292,9 @@ def transcribe_video(
 
         logger.info(
             "✔ Whisper готово: язык=%s, сегментов=%d, символов=%d",
-            language, len(segments), len(full_text),
+            language,
+            len(segments),
+            len(full_text),
         )
 
         return TranscriptResult(

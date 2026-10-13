@@ -42,13 +42,15 @@ class TestProgressReporter:
         bot = MagicMock()
         msg = MagicMock()
         r = ProgressReporter(bot, msg)
-        r.yt_dlp_update({
-            "status": "downloading",
-            "downloaded_bytes": 50,
-            "total_bytes": 100,
-            "speed": 1024 * 1024,
-            "eta": 60,
-        })
+        r.yt_dlp_update(
+            {
+                "status": "downloading",
+                "downloaded_bytes": 50,
+                "total_bytes": 100,
+                "speed": 1024 * 1024,
+                "eta": 60,
+            }
+        )
         assert r.state.step == "downloading"
         assert "MB/s" in r.state.text or "KB/s" in r.state.text
         assert r.state.percent > 0
@@ -71,9 +73,9 @@ class TestProgressReporter:
         bot = MagicMock()
         msg = MagicMock()
         r = ProgressReporter(bot, msg)
-        r.whisper_update(120.0)   # > 85
+        r.whisper_update(120.0)  # > 85
         assert r.state.percent == 85.0
-        r.whisper_update(30.0)    # < 50
+        r.whisper_update(30.0)  # < 50
         assert r.state.percent == 50.0
 
     def test_done(self):

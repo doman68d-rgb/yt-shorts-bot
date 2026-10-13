@@ -36,7 +36,7 @@ class TestGetPrefs:
         p2 = get_prefs(200)
         update(100, clip_count=9)
         assert p1.clip_count == 9
-        assert p2.clip_count != 9   # дефолт
+        assert p2.clip_count != 9  # дефолт
 
 
 class TestUpdate:

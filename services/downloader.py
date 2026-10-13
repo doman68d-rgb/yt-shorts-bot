@@ -56,11 +56,11 @@ class VideoUnavailableError(DownloadError):
 class DownloadResult:
     """То, что вернёт download_video(). Неизменяемый (frozen) для безопасности."""
 
-    file_path: Path          # путь к скачанному файлу
-    title: str               # название видео
-    duration: float          # длительность в секундах
+    file_path: Path  # путь к скачанному файлу
+    title: str  # название видео
+    duration: float  # длительность в секундах
     uploader: str | None  # автор канала (может быть None)
-    source_url: str          # исходный URL (для логов)
+    source_url: str  # исходный URL (для логов)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -84,9 +84,7 @@ def _validate_url(url: str) -> None:
         raise InvalidURLError("Пустая ссылка.")
     url = url.strip()
     if not (url.startswith("http://") or url.startswith("https://")):
-        raise InvalidURLError(
-            f"Ссылка должна начинаться с http(s)://. Получил: {url!r}"
-        )
+        raise InvalidURLError(f"Ссылка должна начинаться с http(s)://. Получил: {url!r}")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -148,7 +146,7 @@ def download_video(
         "no_warnings": True,
         "noplaylist": True,
         "merge_output_format": "mp4",
-        "retries": 3,                    # авто-повторы при сетевых ошибках
+        "retries": 3,  # авто-повторы при сетевых ошибках
         "fragment_retries": 3,
         "ignoreerrors": False,
     }
@@ -166,9 +164,18 @@ def download_video(
                 info = ydl.extract_info(url, download=False)
             except yt_dlp.utils.DownloadError as exc:
                 msg = str(exc).lower()
-                if any(k in msg for k in ("private video", "unavailable", "not found",
-                                          "доступ к видео", "видео недоступно",
-                                          "video unavailable", "sign in")):
+                if any(
+                    k in msg
+                    for k in (
+                        "private video",
+                        "unavailable",
+                        "not found",
+                        "доступ к видео",
+                        "видео недоступно",
+                        "video unavailable",
+                        "sign in",
+                    )
+                ):
                     raise VideoUnavailableError(
                         "Видео недоступно (приватное / удалено / региональная блокировка)."
                     ) from exc
@@ -191,9 +198,7 @@ def download_video(
                 ydl.download([url])
 
             if not file_path.exists():
-                raise DownloadError(
-                    f"yt-dlp отработал, но файл {file_path} не найден."
-                )
+                raise DownloadError(f"yt-dlp отработал, но файл {file_path} не найден.")
 
             # Склеиваем результат.
             result = DownloadResult(

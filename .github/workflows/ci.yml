@@ -39,13 +39,8 @@ jobs:
           ruff check .
           ruff format --check .
 
-      - name: Format check with black
-        run: |
-          black --check .
-
       - name: Test with pytest
         env:
           BOT_TOKEN: "test-token"
-          # LLM-тесты в CI идут в fallback (без ключа)
         run: |
           pytest tests/ -v --cov=. --cov-report=term-missing

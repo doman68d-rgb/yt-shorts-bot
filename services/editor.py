@@ -65,7 +65,8 @@ class VideoProcessingError(EditorError):
 @dataclass(frozen=True)
 class ClipRange:
     """Тайминги одного клипа в исходном видео (секунды)."""
-    index: int          # 1, 2, 3 — порядковый номер клипа
+
+    index: int  # 1, 2, 3 — порядковый номер клипа
     start: float
     end: float
 
@@ -77,6 +78,7 @@ class ClipRange:
 @dataclass(frozen=True)
 class ClipResult:
     """Готовый файл клипа."""
+
     file_path: Path
     range: ClipRange
 
@@ -119,20 +121,34 @@ def _clip_video_to_vertical(
 
     cmd = [
         ffmpeg_bin,
-        "-hide_banner", "-loglevel", "error",
-        "-y",                              # перезаписать
-        "-ss", f"{start:.3f}",             # старт (секунды)
-        "-i", str(src),                    # входной файл
-        "-t", f"{duration:.3f}",           # длительность фрагмента
-        "-vf", vf,                         # фильтр кадрирования+масштаба
-        "-c:v", "libx264",                 # кодек видео — H.264 (нужно для Telegram)
-        "-preset", "medium",               # баланс скорость/качество
-        "-crf", "20",                      # качество (меньше = лучше; 18-23 норм)
-        "-pix_fmt", "yuv420p",             # совместимость с плеерами
-        "-c:a", "aac",                     # аудио в AAC (Telegram его понимает)
-        "-b:a", "128k",                    # битрейт аудио
-        "-movflags", "+faststart",         # метаданные в начале → Telegram стримит
-        "-threads", "0",                   # ffmpeg сам выберет число потоков CPU
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-y",  # перезаписать
+        "-ss",
+        f"{start:.3f}",  # старт (секунды)
+        "-i",
+        str(src),  # входной файл
+        "-t",
+        f"{duration:.3f}",  # длительность фрагмента
+        "-vf",
+        vf,  # фильтр кадрирования+масштаба
+        "-c:v",
+        "libx264",  # кодек видео — H.264 (нужно для Telegram)
+        "-preset",
+        "medium",  # баланс скорость/качество
+        "-crf",
+        "20",  # качество (меньше = лучше; 18-23 норм)
+        "-pix_fmt",
+        "yuv420p",  # совместимость с плеерами
+        "-c:a",
+        "aac",  # аудио в AAC (Telegram его понимает)
+        "-b:a",
+        "128k",  # битрейт аудио
+        "-movflags",
+        "+faststart",  # метаданные в начале → Telegram стримит
+        "-threads",
+        "0",  # ffmpeg сам выберет число потоков CPU
         str(dst),
     ]
 
@@ -157,18 +173,12 @@ def _clip_video_to_vertical(
         # берём последние полезные строки stderr
         tail = "\n".join(stderr[-8:]) if stderr else "(нет stderr)"
         logger.error("ffmpeg error:\n%s", tail)
-        raise VideoProcessingError(
-            f"ffmpeg не смог обработать клип: {tail}"
-        ) from exc
+        raise VideoProcessingError(f"ffmpeg не смог обработать клип: {tail}") from exc
     except subprocess.TimeoutExpired as exc:
-        raise VideoProcessingError(
-            "ffmpeg превысил лимит 15 минут при обработке клипа."
-        ) from exc
+        raise VideoProcessingError("ffmpeg превысил лимит 15 минут при обработке клипа.") from exc
 
     if not dst.exists() or dst.stat().st_size < 1000:
-        raise VideoProcessingError(
-            f"ffmpeg отработал, но клип пустой/слишком маленький: {dst}"
-        )
+        raise VideoProcessingError(f"ffmpeg отработал, но клип пустой/слишком маленький: {dst}")
 
     return dst
 
@@ -292,13 +302,12 @@ def make_clips(
         raise EditorError(f"Файл видео не найден: {video_path}")
 
     if not ranges:
-        raise InvalidClipRangeError(
-            "Список диапазонов пуст. Проверь выбор моментов."
-        )
+        raise InvalidClipRangeError("Список диапазонов пуст. Проверь выбор моментов.")
 
     logger.info(
         "Нарезаем %d клип(ов) из %s",
-        len(ranges), video_path.name,
+        len(ranges),
+        video_path.name,
     )
     for r in ranges:
         logger.info("   #%d [%.1f → %.1f] (%.1fs)", r.index, r.start, r.end, r.duration)

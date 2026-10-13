@@ -15,10 +15,7 @@ from services.transcriber import TranscriptResult, TranscriptSegment
 
 def make_transcript(segments_data):
     """Утилита: сделать TranscriptResult из списка (start, end, text)."""
-    segments = [
-        TranscriptSegment(start=s, end=e, text=t)
-        for s, e, t in segments_data
-    ]
+    segments = [TranscriptSegment(start=s, end=e, text=t) for s, e, t in segments_data]
     return TranscriptResult(
         language="en",
         full_text=" ".join(s.text for s in segments),
@@ -39,10 +36,7 @@ class TestChunkSegments:
 
     def test_groups_by_duration(self):
         # Сегменты каждые 5 секунд, chunk = 30 → должно группировать по 6 сегментов в чанк.
-        segs = [
-            TranscriptSegment(start=i * 5, end=(i + 1) * 5, text=f"seg{i}")
-            for i in range(20)
-        ]
+        segs = [TranscriptSegment(start=i * 5, end=(i + 1) * 5, text=f"seg{i}") for i in range(20)]
         chunks = _chunk_segments(segs, chunk_seconds=30)
         # Должно быть несколько чанков.
         assert len(chunks) >= 2
@@ -70,7 +64,7 @@ class TestPickHighlightsRandom:
         assert len(ranges) == 3
         # Первый клип не начинается раньше 10% от видео.
         for r in ranges:
-            assert r.start >= 60.0 - 0.1   # с поправкой на float
+            assert r.start >= 60.0 - 0.1  # с поправкой на float
             assert r.end <= 600.0 - 60.0 + 0.1
 
     def test_short_video(self):
@@ -86,7 +80,9 @@ class TestPickHighlightsRandom:
 
     def test_indices_renumbered(self):
         ranges = pick_highlights_random(
-            total_duration=600.0, clip_count=2, clip_duration=45.0,
+            total_duration=600.0,
+            clip_count=2,
+            clip_duration=45.0,
         )
         indices = [r.index for r in ranges]
         assert indices == sorted(indices)
@@ -127,9 +123,11 @@ class TestPickHighlights:
 class TestPickHighlightsLLM:
     def test_no_api_key_raises(self):
         import os
+
         os.environ.pop("OPENAI_API_KEY", None)
         os.environ.pop("LLM_API_KEY", None)
         t = make_transcript([(0, 5, "hello")])
         from services.highlights import LLMUnavailableError
+
         with pytest.raises(LLMUnavailableError):
             pick_highlights_llm(t, 300.0, 2, 30)

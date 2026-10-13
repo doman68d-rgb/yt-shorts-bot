@@ -96,7 +96,7 @@ class Settings:
     CLIP_WIDTH: Final[int] = int(os.getenv("CLIP_WIDTH", "1080"))
     CLIP_HEIGHT: Final[int] = int(os.getenv("CLIP_HEIGHT", "1920"))
     CLIP_DURATION: Final[int] = int(os.getenv("CLIP_DURATION", "45"))  # секунд
-    CLIP_COUNT: Final[int] = int(os.getenv("CLIP_COUNT", "3"))          # сколько клипов
+    CLIP_COUNT: Final[int] = int(os.getenv("CLIP_COUNT", "3"))  # сколько клипов
 
     # Исключаемые «хвосты» (первые и последние N процентов видео)
     SKIP_EDGES_PERCENT: Final[int] = int(os.getenv("SKIP_EDGES_PERCENT", "10"))
@@ -118,7 +118,9 @@ if __name__ == "__main__":
     print(f"  • BOT_TOKEN: {settings.BOT_TOKEN[:8]}... (скрыт)")
     print(f"  • DOWNLOADS_DIR: {settings.DOWNLOADS_DIR}")
     print(f"  • CLIPS_DIR:    {settings.CLIPS_DIR}")
-    print(f"  • WHISPER:      {settings.WHISPER_MODEL} on {settings.WHISPER_DEVICE} ({settings.WHISPER_COMPUTE_TYPE})")
+    print(
+        f"  • WHISPER:      {settings.WHISPER_MODEL} on {settings.WHISPER_DEVICE} ({settings.WHISPER_COMPUTE_TYPE})"
+    )
     print(f"  • CLIP размер:  {settings.CLIP_WIDTH}x{settings.CLIP_HEIGHT}")
     print(f"  • CLIP длина:   {settings.CLIP_DURATION}s × {settings.CLIP_COUNT} шт")
     print(f"  • SKIP_EDGES:   {settings.SKIP_EDGES_PERCENT}% с каждого края")
