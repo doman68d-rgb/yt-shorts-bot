@@ -371,12 +371,17 @@ def pick_highlights_llm(
         raise LLMUnavailableError("Нет httpx (зависимость aiogram)") from exc
 
     try:
+        # OpenRouter рекомендует HTTP-Referer и X-Title для идентификации.
+        # Не все провайдеры их требуют, но это безопасно добавлять.
+        headers = {
+            "Authorization": f"Bearer {cfg.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://yt-shorts-bot.local",
+            "X-Title": "yt-shorts-bot",
+        }
         response = httpx.post(
             url=f"{cfg.base_url.rstrip('/')}/chat/completions",
-            headers={
-                "Authorization": f"Bearer {cfg.api_key}",
-                "Content-Type": "application/json",
-            },
+            headers=headers,
             json={
                 "model": cfg.model,
                 "messages": [
