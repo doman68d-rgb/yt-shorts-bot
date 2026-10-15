@@ -86,38 +86,48 @@ class ClipResult:
 # ──────────────────────────────────────────────────────────────────────────────
 # Утилиты для ffmpeg
 # ──────────────────────────────────────────────────────────────────────────────
+def _build_crop_filter(target_w: int, target_h: int) -> str:
+    """
+    Подобрать ffmpeg-фильтр под любое целевое разрешение.
+
+    Стратегия:
+        - crop=ih*W/H:ih  — вырезаем из исходного кадра центральный прямоугольник
+          с соотношением сторон target_w : target_h. Ширина = высота × W/H.
+        - scale=W:H      — растягиваем в точное целевое разрешение.
+    """
+    crop_w = f"ih*{target_w}/{target_h}"
+    return f"crop={crop_w}:ih,scale={target_w}:{target_h}:flags=lanczos,setsar=1"
+
+
 def _clip_video_to_vertical(
     src: Path,
     dst: Path,
     start: float,
     end: float,
+    target_w: int | None = None,
+    target_h: int | None = None,
 ) -> Path:
     """
     Вырезать фрагмент [start, end] из src, масштабировать в целевое
-    вертикальное разрешение (1080x1920) одним вызовом ffmpeg.
+    разрешение одним вызовом ffmpeg.
 
-    Стратегия:
-        - Берём фильтр `crop=ih*9/16:ih` — из исходного кадра вырезаем
-          центральный вертикальный кусок с соотношением 9:16.
-          Это самый простой способ получить вертикаль из горизонтали:
-          ширина = высота * 9/16. Высота остаётся как есть.
-        - Дальше `scale=1080:1920:flags=lanczos` — растягиваем в целевой
-          размер (с качественным ресэмплингом).
-        - `-ss` ДО `-i` = быстрый seek (без перекодирования исходника).
-        - `-ss` ПОСЛЕ `-i` = точный seek (с перекодированием).
-          Нам нужен точный, поэтому `-ss` ставим ДО входного фильтра, но
-          используем `-noaccurate_seek` нет — у moviepy/ffmpeg точный seek
-          по умолчанию. Для стабильности ставим `-ss` ДО `-i`, а для
-          точности указываем `-avoid_negative_ts make_zero`.
+    Параметры:
+        src, dst, start, end — обязательные.
+        target_w, target_h    — целевое разрешение (по умолчанию из settings.CLIP_WIDTH/HEIGHT).
+
+    Алгоритм:
+        1. Из исходного кадра вырезаем центральный прямоугольник с aspect
+           ratio целевого разрешения.
+        2. Масштабируем в точный размер с качественным lanczos-ресемплингом.
+        3. Кодируем в H.264 + AAC, готовый для Telegram-стриминга.
     """
     ffmpeg_bin = _find_ffmpeg()
-    target_w, target_h = settings.CLIP_WIDTH, settings.CLIP_HEIGHT
+    target_w = target_w or settings.CLIP_WIDTH
+    target_h = target_h or settings.CLIP_HEIGHT
     duration = max(0.1, end - start)
 
-    # Логика фильтра:
-    #   crop=ih*9/16:ih:0           → центр. вертикальный 9:16
-    #   scale=W:H:flags=lanczos     → целевое разрешение
-    vf = f"crop=ih*9/16:ih,scale={target_w}:{target_h}:flags=lanczos,setsar=1"
+    # Логика фильтра: crop до нужного aspect, затем scale до точного разрешения.
+    vf = _build_crop_filter(target_w, target_h)
 
     cmd = [
         ffmpeg_bin,
@@ -280,6 +290,8 @@ def make_clips(
     ranges: list[ClipRange],
     job_id: str,
     progress_hook=None,
+    target_w: int | None = None,
+    target_h: int | None = None,
 ) -> list[Path]:
     """
     Создать клипы по готовым диапазонам.
@@ -290,6 +302,7 @@ def make_clips(
                        Откуда они пришли — не наше дело (рандом / LLM / руками).
         job_id       — уникальный ID задачи (для именования файлов).
         progress_hook — (опционально) fn(clip_index: int, total_clips: int).
+        target_w, target_h — целевое разрешение (опционально, дефолт из settings).
 
     Возвращает:
         Список Path к готовым клипам в CLIPS_DIR.
@@ -304,10 +317,14 @@ def make_clips(
     if not ranges:
         raise InvalidClipRangeError("Список диапазонов пуст. Проверь выбор моментов.")
 
+    target_w = target_w or settings.CLIP_WIDTH
+    target_h = target_h or settings.CLIP_HEIGHT
     logger.info(
-        "Нарезаем %d клип(ов) из %s",
+        "Нарезаем %d клип(ов) из %s в %dx%d",
         len(ranges),
         video_path.name,
+        target_w,
+        target_h,
     )
     for r in ranges:
         logger.info("   #%d [%.1f → %.1f] (%.1fs)", r.index, r.start, r.end, r.duration)
@@ -330,7 +347,7 @@ def make_clips(
 
     total = len(ranges)
     for i, r in enumerate(ranges, start=1):
-        out_name = f"{job_id}_clip_{r.index:02d}.mp4"
+        out_name = f"{job_id}_clip_{r.index:02d}_{target_w}x{target_h}.mp4"
         out_path = settings.CLIPS_DIR / out_name
 
         if progress_hook is not None:
@@ -343,6 +360,8 @@ def make_clips(
                 dst=out_path,
                 start=r.start,
                 end=r.end,
+                target_w=target_w,
+                target_h=target_h,
             )
             results.append(out_path)
         except VideoProcessingError as exc:

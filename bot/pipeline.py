@@ -26,7 +26,7 @@ from aiogram.types import FSInputFile, Message
 
 from bot.formatters import clip_range, escape
 from bot.messages import safe_delete, safe_send
-from bot.prefs import get_prefs
+from bot.prefs import get_prefs, parse_resolution
 from config import settings
 from services.downloader import (
     DownloadError,
@@ -149,12 +149,15 @@ async def run_pipeline(
 
             # ─── ШАГ 4: НАРЕЗКА ──────────────────────────────────────────────
             try:
+                target_w, target_h = parse_resolution(prefs.resolution)
                 clip_paths = await asyncio.to_thread(
                     make_clips,
                     video_path=downloaded_path,
                     ranges=ranges,
                     job_id=job_id,
                     progress_hook=reporter.ffmpeg_update,
+                    target_w=target_w,
+                    target_h=target_h,
                 )
             except EditorError as exc:
                 logger.exception("Ошибка монтажа")

@@ -20,7 +20,7 @@ from aiogram.types import (
 )
 
 from bot.fsm import VideoStates
-from bot.prefs import get_prefs
+from bot.prefs import RESOLUTIONS, get_prefs
 from bot.prefs import update as update_prefs
 
 logger = logging.getLogger(__name__)
@@ -29,10 +29,17 @@ logger = logging.getLogger(__name__)
 # ── Главное меню настроек ────────────────────────────────────────────────────
 async def show_settings(message: Message, is_edit: bool = False) -> None:
     prefs = get_prefs(message.chat.id)
+    # Подсказка что значит выбранное разрешение
+    res_note = {
+        "720x1280": "лёгкое, быстрее",
+        "1080x1350": "Instagram лента (4:5)",
+        "1080x1920": "стандарт Shorts/TikTok",
+    }.get(prefs.resolution, "")
     text = (
         "⚙️ <b>Настройки обработки</b>\n\n"
         f"Клипов: <b>{prefs.clip_count}</b>\n"
         f"Длина: <b>{prefs.clip_duration}</b> сек\n"
+        f"Разрешение: <b>{prefs.resolution}</b> ({res_note})\n"
         f"Стратегия: <b>{'🧠 Smart (LLM)' if prefs.strategy == 'smart' else '🎲 Random'}</b>\n\n"
         "Выбери, что менять:"
     )
@@ -40,6 +47,7 @@ async def show_settings(message: Message, is_edit: bool = False) -> None:
         inline_keyboard=[
             [InlineKeyboardButton(text="🔢 Сколько клипов", callback_data="set_count")],
             [InlineKeyboardButton(text="⏱ Длина клипа", callback_data="set_length")],
+            [InlineKeyboardButton(text="🎬 Разрешение", callback_data="set_resolution")],
             [InlineKeyboardButton(text="🧠 Стратегия", callback_data="set_strategy")],
             [InlineKeyboardButton(text="◀️ Назад", callback_data="back_start")],
         ]
@@ -120,6 +128,40 @@ async def on_set_strategy(call: CallbackQuery) -> None:
     await call.message.edit_text("Стратегия выбора моментов:", reply_markup=kb)
 
 
+async def on_set_resolution(call: CallbackQuery) -> None:
+    """Подменю выбора разрешения клипа."""
+    await call.answer()
+    prefs = get_prefs(call.message.chat.id)
+    rows = []
+    for key in RESOLUTIONS:
+        label = f"{key} ✅" if prefs.resolution == key else f"{key}"
+        rows.append([InlineKeyboardButton(text=label, callback_data=f"res_{key}")])
+    rows.append([InlineKeyboardButton(text="◀️ Назад", callback_data="settings")])
+    await call.message.edit_text(
+        "🎬 <b>Разрешение клипа</b>\n\n"
+        "Меньше — быстрее обработка и меньше размер файла.\n"
+        "Больше — чётче картинка и больше деталей.\n\n"
+        "Рекомендации:\n"
+        "• 720×1280 — если важна скорость или мало места\n"
+        "• 1080×1350 — для Instagram (4:5)\n"
+        "• 1080×1920 — стандарт для TikTok/YouTube Shorts\n\n"
+        "Выбери:",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=rows),
+        parse_mode=ParseMode.HTML,
+    )
+
+
+async def on_resolution(call: CallbackQuery) -> None:
+    """Обработать выбор конкретного разрешения."""
+    res_key = call.data.replace("res_", "", 1)
+    if res_key not in RESOLUTIONS:
+        await call.answer("Неизвестное разрешение", show_alert=True)
+        return
+    update_prefs(call.message.chat.id, resolution=res_key)
+    await call.answer(f"Готово: {res_key}")
+    await show_settings(call.message, is_edit=True)
+
+
 # ── Применение выбора ────────────────────────────────────────────────────────
 async def on_count(call: CallbackQuery) -> None:
     n = int(call.data.split("_", 1)[1])
@@ -176,6 +218,8 @@ def register(dp: Dispatcher) -> None:
     dp.callback_query.register(on_set_count, F.data == "set_count")
     dp.callback_query.register(on_set_length, F.data == "set_length")
     dp.callback_query.register(on_set_strategy, F.data == "set_strategy")
+    dp.callback_query.register(on_set_resolution, F.data == "set_resolution")
+    dp.callback_query.register(on_resolution, F.data.startswith("res_"))
 
     # Применение выбора (порядок важен)
     dp.callback_query.register(on_count, F.data.startswith("count_"))

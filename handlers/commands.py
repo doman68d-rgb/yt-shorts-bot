@@ -59,15 +59,17 @@ async def cmd_help(message: Message) -> None:
         "4️⃣ Выберу моменты:\n"
         "   • 🧠 <b>Smart</b> (если задан OPENAI_API_KEY) — LLM выберет яркие места.\n"
         "   • 🎲 <b>Random</b> — случайные фрагменты из «середины».\n"
-        "5️⃣ Нарежу клипы в 9:16 (1080×1920) через ffmpeg.\n"
+        "5️⃣ Нарежу клипы в нужном разрешении через ffmpeg.\n"
+        "   📐 720×1280 / 1080×1350 / 1080×1920 — выбери в ⚙️ настройках.\n"
         "6️⃣ Пришлю готовые клипы сюда в Telegram.\n\n"
         "⚙️ Команды:\n"
         "   /clips N L    — задать <b>N</b> клипов по <b>L</b> секунд.\n"
         "                   Пример: <code>/clips 5 60</code>\n"
         "   /strategy     — переключить smart ↔ random.\n"
         "   /help         — эта справка.\n\n"
+        "Разрешение меняется через ⚙️ Настройки клипов → 🎬 Разрешение.\n\n"
         f"🤖 Модель Whisper: {settings.WHISPER_MODEL} ({settings.WHISPER_DEVICE})\n"
-        f"📐 Кроп: 9:16, {settings.CLIP_WIDTH}×{settings.CLIP_HEIGHT}\n"
+        f"📐 Кроп по умолчанию: {settings.CLIP_WIDTH}×{settings.CLIP_HEIGHT}\n"
     )
     await message.answer(text, parse_mode=ParseMode.HTML)
 
