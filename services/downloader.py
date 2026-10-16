@@ -149,6 +149,17 @@ def download_video(
         "retries": 3,  # авто-повторы при сетевых ошибках
         "fragment_retries": 3,
         "ignoreerrors": False,
+        # Обход региональных блокировок YouTube (Datacenter IP часто блочат).
+        # Пробуем несколько клиентов с приоритетом: web → ios → android.
+        "extractor_args": {
+            "youtube": ["player_client=web,ios,android", "skip=translated_subs"]
+        },
+        # Маскируемся под обычный браузер (Cloudflare, regional restrictions).
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/120.0.0.0 Safari/537.36",
+        "geo_bypass": True,
+        "nocheckcertificate": False,
     }
     if progress_hook is not None:
         ydl_opts["progress_hooks"] = [progress_hook]
