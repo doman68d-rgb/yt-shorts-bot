@@ -28,7 +28,17 @@ print(f'✔ httpx {httpx.__version__}')
 
 # 3. Токен задан?
 if [ -z "${BOT_TOKEN:-}" ]; then
-    echo "❌ BOT_TOKEN не задан. Укажи его в .env (BOT_TOKEN=...)"
+    echo "❌ BOT_TOKEN не задан."
+    echo "   Должен быть установлен в Railway Dashboard → Variables."
+    echo "   Показываю все переменные окружения которые ВИДНЫ из контейнера:"
+    echo
+    # Печатаем только ИМЕНА переменных, не значения (для безопасности)
+    env | cut -d= -f1 | sort | grep -E '^[A-Z_][A-Z0-9_]*$' | while read name; do
+        echo "   • $name"
+    done
+    echo
+    echo "   Ищи переменную BOT_TOKEN в этом списке выше."
+    echo "   Если её там нет — добавь в Railway UI: Settings → Variables."
     exit 1
 fi
 echo "✔ BOT_TOKEN задан (${#BOT_TOKEN} символов)"
